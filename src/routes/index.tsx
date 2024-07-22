@@ -1,13 +1,11 @@
-import HomePage from "../pages/HomePage/HomePage";
+import { lazy } from "react";
 import NotFoundPage from "../pages/NotFoundPage/NotFoundPage";
-import ProductPage from "../pages/ProductPage/ProductPage";
+
+const HomePage = lazy(() => import("../pages/HomePage/HomePage"));
+const ProductPage = lazy(() => import("../pages/ProductPage/ProductPage"));
 
 export const routes = [
-  { path: "/", page: <HomePage />, isShowHeader: false },
+  { path: "/", page: <HomePage />, isShowHeader: true },
   { path: "/product", page: <ProductPage />, isShowHeader: true },
-  {
-    path: "*",
-    page: <NotFoundPage />,
-    isShowHeader: false,
-  },
+  { path: "*", page: <NotFoundPage />, isShowHeader: false },
 ];
