@@ -12,6 +12,8 @@ import { Button } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import AlertMessage from '../AlertMessage/AlertMessage';
+import { useDeleteUser } from '../../../apis/delete-user';
+import { useNavigate } from 'react-router-dom';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
   [`&.${tableCellClasses.head}`]: {
@@ -39,8 +41,11 @@ type TableUsersProps = {
 }
 
 export const TableUsers: React.FC<TableUsersProps> = ({data})=> {
-  const [users,setuser] = useState<User[]>(data);
+  const [users,setUsers] = useState<User[]>(data);
   const [open, setOpen] = useState<boolean>(false);
+  const { mutate: deleteUser } = useDeleteUser();
+  const navigate = useNavigate();
+  
 
   const handleClick = () => {
     setOpen(true);
@@ -51,16 +56,19 @@ export const TableUsers: React.FC<TableUsersProps> = ({data})=> {
   }; 
 
   
-  const handleDeleteUser = (id:string) =>{
-    const confirmDelete = window.confirm(
-      "Bạn chắc chắn muốn xóa người dùng này?"
-    );
+  const handleDeleteUser = async (id: string) => {
+    const confirmDelete = window.confirm("Bạn chắc chắn muốn xóa người dùng này?");
 
-    if(confirmDelete)
-    {
-      handleClick();
+    if (confirmDelete) {
+      try {
+        await deleteUser(Number(id)); 
+        setUsers(prevUsers => prevUsers.filter(user => user.id !== id));
+        handleClick();
+      } catch (error) {
+        console.error("Error deleting user:", error);
+      }
     }
-  }
+  };
 
   return (
     <>
@@ -87,7 +95,7 @@ export const TableUsers: React.FC<TableUsersProps> = ({data})=> {
               <StyledTableCell align="right">{row.role}</StyledTableCell>
               <StyledTableCell align="right">{row.password}</StyledTableCell>
               <StyledTableCell align="right">
-                <Button variant='outlined' color='secondary' sx={{marginRight: '10px'}}>
+                <Button onClick={()=>navigate(`/edit/${row.id}`)} variant='outlined' color='secondary' sx={{marginRight: '10px'}}>
                   <BorderColorIcon/>
                 </Button>
                 <Button  onClick={() => handleDeleteUser(row.id)} variant='outlined' color='error'>
